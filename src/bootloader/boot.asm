@@ -1,15 +1,18 @@
 [BITS 16]
-[ORG 0x7C00]
+
+global _start
+
+section .boot
 
 _start:
 ; $=======================================$
 ; | STANDARD INIT                         |
 ; $=======================================$
-    mov [boot_drive], dl
-
     xor ax, ax
     mov ds, ax
     mov es, ax
+
+    mov [boot_drive], dl
 
     cli
     mov ss, ax
@@ -104,8 +107,3 @@ _32bit_start:
     jmp KERNEL_MAIN
 
 KERNEL_MAIN equ 0x7E00
-
-times 510 - ($ - $$) db 0
-dw 0xAA55
-
-incbin "kernel.bin"

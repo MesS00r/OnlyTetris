@@ -25,34 +25,38 @@
             "dependsOn": "Create Build Directory"
         },
         {
-            "label": "Link Kernel",
+            "label": "Build Bootloader (NASM)",
+            "type": "shell",
+            "command": "nasm",
+            "args": [
+                "-I", "${workspaceFolder}/build/",
+                "-f", "elf32",
+                "${workspaceFolder}/src/bootloader/boot.asm",
+                "-o", "${workspaceFolder}/build/boot.o"
+            ],
+            "group": "build",
+            "dependsOn": "Create Build Directory"
+        },
+        {
+            "label": "Link OS Image (i686-elf-ld)",
             "type": "shell",
             "command": "i686-elf-ld",
             "args": [
                 "-T", "${workspaceFolder}/src/linker/linker.ld",
                 "--oformat", "binary",
+                "${workspaceFolder}/build/boot.o",
                 "${workspaceFolder}/build/kernel.o",
-                "-o", "${workspaceFolder}/build/kernel.bin"
-            ],
-            "group": "build",
-            "dependsOn": "Compile Kernel (i686-elf-gcc)",
-            "problemMatcher": []
-        },
-        {
-            "label": "Build OS Image (NASM)",
-            "type": "shell",
-            "command": "nasm",
-            "args": [
-                "-I", "${workspaceFolder}/build/",
-                "-f", "bin",
-                "${workspaceFolder}/src/bootloader/boot.asm",
                 "-o", "${workspaceFolder}/build/os_image/os_image.img"
             ],
             "group": "build",
-            "dependsOn": "Link Kernel"
+            "dependsOn": [
+                "Build Bootloader (NASM)",
+                "Compile Kernel (i686-elf-gcc)"
+            ],
+            "problemMatcher": []
         },
         {
-            "label": "Fill OS Image (TRUNCATE)",
+            "label": "Fill OS Image (truncate)",
             "type": "shell",
             "command": "truncate",
             "args": [
@@ -60,7 +64,7 @@
                 "${workspaceFolder}/build/os_image/os_image.img"
             ],
             "group": "build",
-            "dependsOn": "Build OS Image (NASM)"
+            "dependsOn": "Link OS Image (i686-elf-ld)"
         },
         {
             "label": "Run OS in QEMU",
@@ -74,7 +78,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "dependsOn": "Fill OS Image (TRUNCATE)",
+            "dependsOn": "Fill OS Image (truncate)",
             "problemMatcher": []
         }
     ]

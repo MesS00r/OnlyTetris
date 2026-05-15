@@ -1,6 +1,17 @@
-ENTRY(_main);
+ENTRY(_start);
 
 SECTIONS {
+
+    . = 0x7C00;
+
+    .bootloader : {
+        *(.boot)
+        *(.text.boot)
+
+        . = 510;
+
+        SHORT(0xAA55);
+    }
 
     . = 0x7E00;
 
