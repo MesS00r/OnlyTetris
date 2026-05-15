@@ -1,20 +1,11 @@
-ENTRY(_start);
+ENTRY(_main);
 
 SECTIONS {
-
-    . = 0x7C00;
-
-    .bootloader : {
-        *(.boot)
-    }
-
-    .boot_sing : AT(0x7C00 + 510) {
-        SHORT(0xAA55);
-    }
 
     . = 0x7E00;
 
     .text : AT(ADDR(.text)) {
+        *(.main)
         *(.text)
     }
 

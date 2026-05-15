@@ -1,15 +1,11 @@
 [BITS 16]
+[ORG 0x7C00]
 
-extern _main
-
-global _start
-
-section .boot
 _start:
 ; $=======================================$
 ; | STANDARD INIT                         |
 ; $=======================================$
-    push dx
+    mov [boot_drive], dl
 
     xor ax, ax
     mov ds, ax
@@ -27,10 +23,15 @@ _start:
 ; $=======================================$
 ; | MAIN CODE                             |
 ; $=======================================$
-    pop dx
-    
-    mov si, _main
-    call disk_read
+    mov ah, 0x02
+    mov al, 8
+    mov ch, 0
+    mov cl, 2
+    mov dh, 0
+    mov dl, [boot_drive]
+    mov bx, KERNEL_MAIN
+    int 0x13
+    jc disk_err
 
     mov ah, 0
     mov al, 0x13
@@ -68,12 +69,10 @@ gdt:
     dd gdt_start
 
 ; $=======================================$
-; | SYS FOO                               |
+; | DISK ERROR                            |
 ; $=======================================$
-; базовая функция вывода в консоль
-; 1 аргумент:
-; si - адрес строки для вывода
-print_msg:
+disk_err:
+    mov si, err_msg
 .loop:
     lodsb
     test al, al
@@ -83,29 +82,11 @@ print_msg:
     int 0x10
     jmp .loop
 .done:
-    ret
-
-; функция чтения с диска
-; 1 аргумент:
-; si - адрес для чтения
-disk_read:
-    mov ah, 0x02
-    mov al, 4
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    mov bx, si
-    int 0x13
-    jc .err
-    ret
-.err:
-    mov si, err_msg
-    call print_msg
-
     hlt
     jmp $
 
 err_msg: db "Disk read error.", 10, 13, 0
+boot_drive: db 0
 
 ; $=======================================$
 ; | 32 BIT PROTECTED MODE                 |
@@ -115,7 +96,16 @@ _32bit_start:
     mov ax, 0x10
     mov ds, ax
     mov es, ax
+    mov fs, ax
+    mov gs, ax
     mov ss, ax
     mov esp, 0x7C00
 
-    jmp _main
+    jmp KERNEL_MAIN
+
+KERNEL_MAIN equ 0x7E00
+
+times 510 - ($ - $$) db 0
+dw 0xAA55
+
+incbin "kernel.bin"

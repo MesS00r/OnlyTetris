@@ -1,0 +1,81 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Create Build Directory",
+            "type": "shell",
+            "command": "mkdir -p ${workspaceFolder}/build/os_image",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "Compile Kernel (i686-elf-gcc)",
+            "type": "shell",
+            "command": "i686-elf-gcc",
+            "args": [
+                "-c", "${workspaceFolder}/src/kernel.c",
+                "-o", "${workspaceFolder}/build/kernel.o",
+                "-ffreestanding",
+                "-nostdlib",
+                "-Os"
+            ],
+            "group": "build",
+            "dependsOn": "Create Build Directory"
+        },
+        {
+            "label": "Link Kernel",
+            "type": "shell",
+            "command": "i686-elf-ld",
+            "args": [
+                "-T", "${workspaceFolder}/src/linker/linker.ld",
+                "--oformat", "binary",
+                "${workspaceFolder}/build/kernel.o",
+                "-o", "${workspaceFolder}/build/kernel.bin"
+            ],
+            "group": "build",
+            "dependsOn": "Compile Kernel (i686-elf-gcc)",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build OS Image (NASM)",
+            "type": "shell",
+            "command": "nasm",
+            "args": [
+                "-I", "${workspaceFolder}/build/",
+                "-f", "bin",
+                "${workspaceFolder}/src/bootloader/boot.asm",
+                "-o", "${workspaceFolder}/build/os_image/os_image.img"
+            ],
+            "group": "build",
+            "dependsOn": "Link Kernel"
+        },
+        {
+            "label": "Fill OS Image (TRUNCATE)",
+            "type": "shell",
+            "command": "truncate",
+            "args": [
+                "-s", "1440k", 
+                "${workspaceFolder}/build/os_image/os_image.img"
+            ],
+            "group": "build",
+            "dependsOn": "Build OS Image (NASM)"
+        },
+        {
+            "label": "Run OS in QEMU",
+            "type": "shell",
+            "command": "qemu-system-i386",
+            "args": [
+                "-drive",
+                "format=raw,file=${workspaceFolder}/build/os_image/os_image.img"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": "Fill OS Image (TRUNCATE)",
+            "problemMatcher": []
+        }
+    ]
+}
