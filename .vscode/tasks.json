@@ -15,6 +15,7 @@
             "type": "shell",
             "command": "i686-elf-gcc",
             "args": [
+                "-masm=intel",
                 "-c", "${workspaceFolder}/src/kernel.c",
                 "-o", "${workspaceFolder}/build/kernel.o",
                 "-ffreestanding",
