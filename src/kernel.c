@@ -1,16 +1,19 @@
 #include <stdint.h>
-#include <my_libs/vga_colors.h>
+#include <my_libs/libs_c/vga_enums.h>
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 
-__attribute__((section(".main")))
-void _main(void) {
+uint8_t vga_color_rgb(uint8_t r, uint8_t g, uint8_t b);
+
+void _kernel(void) {
     uint8_t *vga = (uint8_t *)0xA0000;
 
     for (uint32_t i = 0; i < 10000; i++) {
-        vga[i] = RED;
+        vga[i] = vga_color_rgb(123, 54, 78);
     }
 
-    __asm__("hlt\njmp .");
+    for (uint32_t i = 10000; i < 20000; i++) {
+        vga[i] = RED;
+    }
 }

@@ -1,0 +1,44 @@
+#ifndef VGA_ENUMS_H_INCLUDED
+#define VGA_ENUMS_H_INCLUDED
+
+// STD COLORS
+enum VGA_STD_COLORS {
+    BLACK,
+    BLUE,
+    GREEN,
+    CYAN,
+    RED,
+    MAGENTA,
+    BROWN,
+    LIGHT_GREY,
+    DARK_GREY,
+    LIGHT_BLUE,
+    LIGHT_GREEN,
+    LIGHT_CYAN,
+    LIGHT_RED,
+    LIGHT_MAGENTA,
+    YELLOW,
+    WHITE
+};
+
+// GREY COLORS
+enum VGA_GREY_COLORS {
+    GREY_BLACK,
+    GREY_BBBBBB,
+    GREY_BBBBB,
+    GREY_BBBB,
+    GREY_BBB,
+    GREY_BB,
+    GREY_B,
+    GREY_N,
+    GREY_L,
+    GREY_LL,
+    GREY_LLL,
+    GREY_LLLL,
+    GREY_LLLLL,
+    GREY_LLLLLL,
+    GREY_LLLLLLL,
+    GREY_WHITE
+};
+
+#endif // VGA_ENUMS_H_INCLUDED
