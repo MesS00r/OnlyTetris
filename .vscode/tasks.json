@@ -2,70 +2,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Create Build Directory",
+            "label": "Build",
             "type": "shell",
-            "command": "mkdir -p ${workspaceFolder}/build/os_image",
+            "command": "./build.sh",
             "group": "build",
             "presentation": {
                 "reveal": "silent"
             }
-        },
-        {
-            "label": "Compile Kernel (i686-elf-gcc)",
-            "type": "shell",
-            "command": "i686-elf-gcc",
-            "args": [
-                "-masm=intel",
-                "-c", "${workspaceFolder}/src/kernel.c",
-                "-o", "${workspaceFolder}/build/kernel.o",
-                "-ffreestanding",
-                "-nostdlib",
-                "-Os"
-            ],
-            "group": "build",
-            "dependsOn": "Create Build Directory"
-        },
-        {
-            "label": "Build Bootloader (NASM)",
-            "type": "shell",
-            "command": "nasm",
-            "args": [
-                "-I", "${workspaceFolder}/build/",
-                "-f", "elf32",
-                "${workspaceFolder}/src/bootloader/boot.asm",
-                "-o", "${workspaceFolder}/build/boot.o"
-            ],
-            "group": "build",
-            "dependsOn": "Create Build Directory"
-        },
-        {
-            "label": "Link OS Image (i686-elf-ld)",
-            "type": "shell",
-            "command": "i686-elf-ld",
-            "args": [
-                "-T", "${workspaceFolder}/src/linker/linker.ld",
-                "--oformat", "binary",
-                "${workspaceFolder}/build/boot.o",
-                "${workspaceFolder}/build/kernel.o",
-                "-o", "${workspaceFolder}/build/os_image/os_image.img"
-            ],
-            "group": "build",
-            "dependsOn": [
-                "Build Bootloader (NASM)",
-                "Compile Kernel (i686-elf-gcc)"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Fill OS Image (truncate)",
-            "type": "shell",
-            "command": "truncate",
-            "args": [
-                "-s", "1440k", 
-                "${workspaceFolder}/build/os_image/os_image.img"
-            ],
-            "group": "build",
-            "dependsOn": "Link OS Image (i686-elf-ld)"
         },
         {
             "label": "Run OS in QEMU",
@@ -73,13 +16,15 @@
             "command": "qemu-system-i386",
             "args": [
                 "-drive",
-                "format=raw,file=${workspaceFolder}/build/os_image/os_image.img"
+                "format=raw,file=${workspaceFolder}/build/os_image/os_image.img",
+                "-d", "cpu,int,guest_errors",
+                "-D", "qemu.log"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "dependsOn": "Fill OS Image (truncate)",
+            "dependsOn": "Build",
             "problemMatcher": []
         }
     ]

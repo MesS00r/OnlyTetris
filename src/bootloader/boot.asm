@@ -36,12 +36,28 @@ _start:
     int 0x13             ; BIOS прерывание 0x13
     jc disk_err          ; переходим в disk_err, если произошла ошибка
 
-    mov ah, 0x00 ; 0x00 - функция "установить видеорежим"
-    mov al, 0x13 ; 0x13 - установить режим: 320x200, 256 color, VGA
-    int 0x10     ; BIOS прерывание 0x10
+; $=======================================$
+; | VGA INIT                              |
+; $=======================================$
+    ; mov ah, 0x00 ; 0x00 - функция "установить видеорежим"
+    ; mov al, 0x12 ; 0x12 - установить режим: 640x480, 16 color, VGA
+    ; int 0x10     ; BIOS прерывание 0x10
+
+    mov ax, 0x4F01
+    mov cx, 0x101
+    mov di, VESA_ADDR
+    int 0x10
+    cmp ax, 0x004F
+    jne vesa_err
+
+    mov eax, [VESA_ADDR + 0x28]
+    mov [VESA_BUF], eax
+
+    mov ax, 0x4F02
+    mov bx, 0x4101
+    int 0x10
 
     cli ; запретить прерывания
-
 ; $=======================================$
 ; | TRANSITION TO PROTECTED MODE          |
 ; $=======================================$
@@ -76,7 +92,7 @@ gdt:
 ; | DISK ERROR                            |
 ; $=======================================$
 disk_err:
-    mov si, err_msg ; загрузить адрес err_msg в si
+    mov si, err_disk_msg ; загрузить адрес err_disk_msg в si
 .loop:
     lodsb           ; загрузить символ из si (err_msg) в al
     test al, al     ; проверить al
@@ -89,21 +105,42 @@ disk_err:
     hlt             ; остановить процессор
     jmp $           ; бесконечный цикл, если hlt не сработал
 
-err_msg: db "Disk read error.", 10, 13, 0
+err_disk_msg: db "Disk read error.", 10, 13, 0
 boot_drive: db 0
+
+; $=======================================$
+; | VESA ERROR                            |
+; $=======================================$
+vesa_err:
+    mov si, err_vesa_msg ; загрузить адрес err_msg в si
+.loop:
+    lodsb           ; загрузить символ из si (err_msg) в al
+    test al, al     ; проверить al
+    jz .done        ; переход в .done, если ZF = 1
+    mov ah, 0x0E    ; 0x0E - функция печати символа без атрибутов
+    mov bh, 0       ; 0 - номер страницы
+    int 0x10        ; BIOS прерывание 0x10
+    jmp .loop       ; переход в .loop (цикл)
+.done:
+    hlt             ; остановить процессор
+    jmp $           ; бесконечный цикл, если hlt не сработал
+
+err_vesa_msg: db "VESA init error.", 10, 13, 0
+VESA_ADDR equ 0x9000
+VESA_BUF equ 0x7B00
 
 ; $=======================================$
 ; | 32 BIT PROTECTED MODE                 |
 ; $=======================================$
 [BITS 32]
 _32bit_start:
-    mov ax, 0x10    ; загрузить 0x10 в ax
-    mov ds, ax      ; загрузить ax в ds
-    mov es, ax      ; загрузить ax в es
-    mov fs, ax      ; загрузить ax в fs
-    mov gs, ax      ; загрузить ax в gs
-    mov ss, ax      ; загрузить ax в ss
-    mov esp, 0x7C00 ; установить стек на 0x7C00
+    mov ax, 0x10     ; загрузить 0x10 в ax
+    mov ds, ax       ; загрузить ax в ds
+    mov es, ax       ; загрузить ax в es
+    mov fs, ax       ; загрузить ax в fs
+    mov gs, ax       ; загрузить ax в gs
+    mov ss, ax       ; загрузить ax в ss
+    mov esp, 0x90000 ; установить стек на 0x90000
 
     jmp KERNEL_MAIN ; переход в KERNEL_MAIN (0x7E00)
     ; запуск ядра ОС (В 1 конец)
