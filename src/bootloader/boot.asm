@@ -39,23 +39,19 @@ _start:
 ; $=======================================$
 ; | VGA INIT                              |
 ; $=======================================$
-    ; mov ah, 0x00 ; 0x00 - функция "установить видеорежим"
-    ; mov al, 0x12 ; 0x12 - установить режим: 640x480, 16 color, VGA
-    ; int 0x10     ; BIOS прерывание 0x10
+    mov ax, 0x4F01    ; 0x4F01 - получить информацию о видеорежиме
+    mov cx, 0x101     ; 0x101 - установить режим: 640x480, 256 color, VESA
+    mov di, VESA_ADDR ; загружаем адрес структуры VESA в di
+    int 0x10          ; BIOS прерывание 0x10
+    cmp ax, 0x004F    ; если ax != 0x004F, то
+    jne vesa_err      ; переходим в vesa_err
 
-    mov ax, 0x4F01
-    mov cx, 0x101
-    mov di, VESA_ADDR
-    int 0x10
-    cmp ax, 0x004F
-    jne vesa_err
+    mov eax, [VESA_ADDR + 0x28] ; чтение адреса структуры VESA
+    mov [VESA_BUF], eax         ; записть структуры VESA по смещению VESA_BUF (0x7B00)
 
-    mov eax, [VESA_ADDR + 0x28]
-    mov [VESA_BUF], eax
-
-    mov ax, 0x4F02
-    mov bx, 0x4101
-    int 0x10
+    mov ax, 0x4F02 ; 0x4F02 - функция "установить видеорежим"
+    mov bx, 0x4101 ; режим 0x101 с поддержкой линейного буфера
+    int 0x10       ; BIOS прерывание 0x10
 
     cli ; запретить прерывания
 ; $=======================================$
@@ -94,16 +90,16 @@ gdt:
 disk_err:
     mov si, err_disk_msg ; загрузить адрес err_disk_msg в si
 .loop:
-    lodsb           ; загрузить символ из si (err_msg) в al
-    test al, al     ; проверить al
-    jz .done        ; переход в .done, если ZF = 1
-    mov ah, 0x0E    ; 0x0E - функция печати символа без атрибутов
-    mov bh, 0       ; 0 - номер страницы
-    int 0x10        ; BIOS прерывание 0x10
-    jmp .loop       ; переход в .loop (цикл)
+    lodsb        ; загрузить символ из si (err_disk_msg) в al
+    test al, al  ; проверить al
+    jz .done     ; переход в .done, если ZF = 1
+    mov ah, 0x0E ; 0x0E - функция печати символа без атрибутов
+    mov bh, 0    ; 0 - номер страницы
+    int 0x10     ; BIOS прерывание 0x10
+    jmp .loop    ; переход в .loop (цикл)
 .done:
-    hlt             ; остановить процессор
-    jmp $           ; бесконечный цикл, если hlt не сработал
+    hlt   ; остановить процессор
+    jmp $ ; бесконечный цикл, если hlt не сработал
 
 err_disk_msg: db "Disk read error.", 10, 13, 0
 boot_drive: db 0
@@ -112,18 +108,18 @@ boot_drive: db 0
 ; | VESA ERROR                            |
 ; $=======================================$
 vesa_err:
-    mov si, err_vesa_msg ; загрузить адрес err_msg в si
+    mov si, err_vesa_msg ; загрузить адрес err_vesa_msg в si
 .loop:
-    lodsb           ; загрузить символ из si (err_msg) в al
-    test al, al     ; проверить al
-    jz .done        ; переход в .done, если ZF = 1
-    mov ah, 0x0E    ; 0x0E - функция печати символа без атрибутов
-    mov bh, 0       ; 0 - номер страницы
-    int 0x10        ; BIOS прерывание 0x10
-    jmp .loop       ; переход в .loop (цикл)
+    lodsb        ; загрузить символ из si (err_vesa_msg) в al
+    test al, al  ; проверить al
+    jz .done     ; переход в .done, если ZF = 1
+    mov ah, 0x0E ; 0x0E - функция печати символа без атрибутов
+    mov bh, 0    ; 0 - номер страницы
+    int 0x10     ; BIOS прерывание 0x10
+    jmp .loop    ; переход в .loop (цикл)
 .done:
-    hlt             ; остановить процессор
-    jmp $           ; бесконечный цикл, если hlt не сработал
+    hlt   ; остановить процессор
+    jmp $ ; бесконечный цикл, если hlt не сработал
 
 err_vesa_msg: db "VESA init error.", 10, 13, 0
 VESA_ADDR equ 0x9000
