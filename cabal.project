@@ -1,0 +1,6 @@
+packages: 
+  haskell_scripts/
+
+package *
+  extra-prog-path:
+    haskell_scripts/

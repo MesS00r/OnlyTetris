@@ -20,17 +20,9 @@ SECTIONS {
         *(.text)
     }
 
-    .rodata : AT(ADDR(.rodata)) {
-        *(.rodata)
-    }
-
-    .data : AT(ADDR(.data)) {
-        *(.data)
-    }
-
-    .bss : AT(ADDR(.bss)) {
-        *(.bss)
-    }
+    .rodata : AT(ADDR(.rodata)) { *(.rodata) }
+    .data   : AT(ADDR(.data))   { *(.data) }
+    .bss    : AT(ADDR(.bss))    { *(.bss) }
 
     /DISCARD/ : {
         *(.comment)

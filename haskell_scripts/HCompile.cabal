@@ -1,0 +1,51 @@
+cabal-version: 3.14
+name:          HCompile
+version:       0.1.0.0
+build-type:    Simple
+
+common warnings
+    ghc-options: -Wall -Wno-unused-top-binds -Wno-unused-matches -Wno-type-defaults
+
+library
+    import:             warnings
+    exposed-modules:    HCompile
+    hs-source-dirs:     hcompile
+
+    build-depends:      base ^>=4.20.2.0,
+                        mtl,
+                        directory,
+                        filepath,
+                        JuicyPixels,
+                        bytestring,
+                        vector
+
+    default-extensions: FlexibleInstances
+                        UndecidableInstances
+                        LambdaCase
+
+    default-language:   Haskell2010
+
+executable vesaGen
+    import:             warnings
+    other-modules:      Paths_HCompile
+    main-is:            Vesa.hs
+    hs-source-dirs:     .
+
+    build-depends:      base ^>=4.20.2.0,
+                        filepath,
+                        HCompile
+
+    default-language:   Haskell2010
+
+executable texturesGen
+    import:             warnings
+    other-modules:      Paths_HCompile
+    main-is:            Textures.hs
+    hs-source-dirs:     .
+
+    build-depends:      base ^>=4.20.2.0,
+                        filepath,
+                        HCompile
+
+    default-extensions: LambdaCase
+    default-language:   Haskell2010

@@ -4,3 +4,4 @@ build
 *.log
 .clangd
 .cache
+dist-newstyle
