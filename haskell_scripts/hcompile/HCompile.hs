@@ -6,7 +6,6 @@ module HCompile (
     HCompileConf(..),
     HCompile,
     Val2String(..),
-    Color24,
     delFile,
     send2File,
     cleanName,
@@ -44,8 +43,8 @@ import qualified Data.ByteString      as B
 import qualified Data.Vector.Storable as V
 import Codec.Picture.Bitmap           (decodeBitmapWithPaletteAndMetadata)
 import Data.Word                      (Word8, Word32)
+import Data.Bits                      (shiftL, (.|.))
 import Numeric                        (showHex)
-import Foreign.Storable
 
 -- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 -- * HCOMPILE TYPE
@@ -132,6 +131,14 @@ _padList isRaw list
         listStr = map (_rawOrNot isRaw) list
         maxLen  = maximum (map length listStr)
         pad str = str ++ replicate (maxLen - length str) ' '
+
+_bytes2Word32 :: [Word8] -> Word32
+_bytes2Word32 bytes = foldl' (\acc byte -> (acc `shiftL` 8) .|. fromIntegral byte) 0 (take 3 bytes)
+
+_myShowHex :: Word32 -> String
+_myShowHex n = "0x" ++ pad (map toUpper (showHex n ""))
+    where
+        pad s = replicate (6 - length s) '0' ++ s
 
 -- * GEN MACRO CONST
 -- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -225,8 +232,8 @@ _genTableFooFloat isRaw name foo (start, end) step sep limits lineLen
     | step == 0       = error "Step must be non-zero"
     | otherwise       =
                         _genType isRaw name 
-                        (map (_infOrNan . foo) [start, start + step .. end])
-                        sep limits lineLen
+                                 (map (_infOrNan . foo) [start, start + step .. end])
+                                 sep limits lineLen
 
 genTableFooFloat :: (Val2String v, CheckFloat v, Eq v, Enum a, Fractional a, Eq a, RealFloat a) =>
                     String -> (a -> v) -> (a, a) -> a -> (String, String) -> (String, String) -> Int -> HCompile ()
@@ -235,27 +242,6 @@ genTableFooFloat    = _genTableFooFloat NotRaw
 genTableFooFloatRaw :: (Val2String v, CheckFloat v, Eq v, Enum a, Fractional a, Eq a, RealFloat a) =>
                        String -> (a -> v) -> (a, a) -> a -> (String, String) -> (String, String) -> Int -> HCompile ()
 genTableFooFloatRaw = _genTableFooFloat Raw
-
--- * COLOR24 TYPE
--- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-data Color24 = Color24 !Word8 !Word8 !Word8
-
-instance Storable Color24 where
-    sizeOf _    = 3
-    alignment _ = 1
-    peek ptr    = do
-        b <- peekByteOff ptr 0
-        g <- peekByteOff ptr 1
-        r <- peekByteOff ptr 2
-        return (Color24 b g r)
-    poke _ _ = return ()
-
-instance Show Color24 where
-    show (Color24 b g r) = "0x" ++ pad (showHex colorNum "")
-      where
-        colorNum = (fromIntegral r * 65536) + (fromIntegral g * 256) + fromIntegral b :: Word32
-        pad s    = replicate (6 - length s) '0' ++ s
 
 -- * GET BMP INFO
 -- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -295,13 +281,13 @@ getBmpSizeByte path = do
     size <- liftIO $ getFileSize path
     return (fromIntegral size)
 
-getBmpPalette :: FilePath -> HCompile [Color24]
+getBmpPalette :: FilePath -> HCompile [Word32]
 getBmpPalette path = do
     fileData <- liftIO $ B.readFile path
 
     either (\err -> error $ "Failed to read file: " ++ err)
-           (\case {(PalettedRGB8 _ p, _)                                                           -> 
-           return (V.toList (V.unsafeCast (imageData (palettedAsImage p)) :: V.Vector Color24)); _ -> 
+           (\case {(PalettedRGB8 _ p, _)                                                            -> 
+           return (map _bytes2Word32 (_myChunksOf 3 (V.toList (imageData (palettedAsImage p))))); _ ->
            error "This BMP does not contain an 8 bit palette"})
            (decodeBitmapWithPaletteAndMetadata fileData)
 
@@ -320,11 +306,9 @@ getBmpImage path = do
 
 _bmpPalette :: Image PixelRGB8 -> String -> (String, String) -> (String, String) -> (String, String) -> Int -> Int -> HCompile ()
 _bmpPalette palette name (field, fSep) sep limits pads lineLen = do
-    -- pWidth <- asks paletteWidth
-    
     _genType Raw name 
-                 (map (\(i, f) -> padName pads (field ++ show i ++ fSep) ++ show f)
-                 (zip [0 :: Int ..] (V.toList (V.unsafeCast (imageData palette) :: V.Vector Color24))))
+                 (map (\(i, f) -> padName pads (field ++ show i ++ fSep) ++ _myShowHex f)
+                 (zip [0 :: Int ..] (map _bytes2Word32 (_myChunksOf 3 (V.toList (imageData palette))))))
                  sep limits lineLen
 
 _bmpImage :: Image Pixel8 -> String -> String -> (String, String) -> (String, String) -> Int -> HCompile ()

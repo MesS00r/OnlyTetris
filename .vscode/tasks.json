@@ -2,6 +2,16 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Run Scripts",
+            "type": "shell",
+            "command": "cabal run tetrominoesGen",
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Compile Project",
             "type": "shell",
             "command": "cmake --build build --clean-first",
@@ -25,7 +35,7 @@
                 "kind": "test",
                 "isDefault": true
             },
-            "dependsOn": "Compile Project",
+            "dependsOn": ["Run Scripts", "Compile Project"],
             "presentation": {
                 "reveal": "always",
                 "focus": true

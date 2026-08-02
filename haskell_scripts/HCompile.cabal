@@ -25,27 +25,14 @@ library
 
     default-language:   Haskell2010
 
-executable vesaGen
+executable tetrominoesGen
     import:             warnings
     other-modules:      Paths_HCompile
-    main-is:            Vesa.hs
+    main-is:            Tetrominoes.hs
     hs-source-dirs:     .
 
     build-depends:      base ^>=4.20.2.0,
                         filepath,
                         HCompile
 
-    default-language:   Haskell2010
-
-executable texturesGen
-    import:             warnings
-    other-modules:      Paths_HCompile
-    main-is:            Textures.hs
-    hs-source-dirs:     .
-
-    build-depends:      base ^>=4.20.2.0,
-                        filepath,
-                        HCompile
-
-    default-extensions: LambdaCase
     default-language:   Haskell2010
