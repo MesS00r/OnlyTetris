@@ -21,7 +21,7 @@ file(GLOB_RECURSE C_SOURCES
 
 # 3. Принудительно настраиваем флаги компиляции ТОЛЬКО для Си-файлов
 set_source_files_properties(${C_SOURCES} PROPERTIES 
-    COMPILE_FLAGS "-masm=intel -ffreestanding -nostdlib -Os -m32"
+    COMPILE_FLAGS "-masm=att -ffreestanding -nostdlib -Os -m32"
 )
 
 # 4. Принудительно настраиваем флаги ТОЛЬКО для ASM-файла (и переопределяем формат на elf32)
