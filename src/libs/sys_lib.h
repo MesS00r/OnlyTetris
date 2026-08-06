@@ -19,15 +19,33 @@ static inline void outb(uint16_t port, uint8_t val) {
 }
 
 static uint16_t pit_read_counter(void) {
-    outb(PIT_COMMAND_PORT, 0x00);
     uint16_t low  = inb(PIT_CHANNEL0_PORT);
     uint16_t high = inb(PIT_CHANNEL0_PORT);
+    
+    outb(PIT_COMMAND_PORT, 0x00);
     return (high << 8) | low;
 }
 
 static void wait_frame(void) {
     uint16_t start = pit_read_counter();
+
     while((uint16_t)(start - pit_read_counter()) < PIT_FREQ / TARGET_FPS);
+}
+
+static uint8_t wait_ticks(uint32_t ticks) {
+    static uint16_t timer = 0;
+    static uint32_t acc   = 0;
+
+    if (timer == 0) { timer = pit_read_counter(); }
+
+    uint16_t current = pit_read_counter();
+    uint16_t delta   = (uint16_t)(timer - current);
+
+    timer = current;
+    acc += delta;
+
+    if (acc >= ticks) { acc -= ticks; return 1; }
+    else              { return 0; }
 }
 
 #endif // SYS_LIB_H

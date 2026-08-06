@@ -5,23 +5,22 @@
 
 __attribute__((section(".main")))
 void _main(void) {
-    uint8_t count  = 0;
-    uint8_t count1 = 0;
+    uint8_t i = 0;
 
     while (1) {
         wait_frame();
         clear_screen();
-    
-        count1 = (count / 15) % 7;
+
         tetromino_draw(MAP_WIDTH  / 2 - 2,
                        MAP_HEIGHT / 2 - 2,
-                       tetrominoes[count1]
+                       tetrominoes[0][i]
                       );
 
-        VGA[0][0] = TILE;
+        VGA[1][1] = TILE_COLOR;
 
-        if (count >= 255)count = 0;
-        else count++;
+        if (i >= TURN_NUM)                 i = 0;
+        else if (wait_ticks(PIT_FREQ / 2)) i++;
+
     }
     __asm__ volatile("hlt\njmp .");
 }

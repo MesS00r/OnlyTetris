@@ -16,7 +16,7 @@ set(ASM_SOURCES "src/bootloader/boot.asm")
 
 file(GLOB_RECURSE C_SOURCES
     "src/kernel.c"
-    "src/my_libs/*.c"
+    "src/libs/*.c"
 )
 
 # 3. Принудительно настраиваем флаги компиляции ТОЛЬКО для Си-файлов
