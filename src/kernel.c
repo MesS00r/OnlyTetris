@@ -11,16 +11,12 @@ void _main(void) {
         wait_frame();
         clear_screen();
 
-        tetromino_draw(MAP_WIDTH  / 2 - 2,
-                       MAP_HEIGHT / 2 - 2,
-                       tetrominoes[0][i]
-                      );
+        tetromino_draw(0, 0, tetrominoes[6][i]);
 
         VGA[1][1] = TILE_COLOR;
 
-        if (i >= TURN_NUM)                 i = 0;
-        else if (wait_ticks(PIT_FREQ / 2)) i++;
-
+        if (wait_ticks(PIT_FREQ / 2)) i++;
+        else if (i >= TURN_NUM)       i = 0;
     }
     __asm__ volatile("hlt\njmp .");
 }

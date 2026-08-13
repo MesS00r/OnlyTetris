@@ -32,7 +32,7 @@ static void wait_frame(void) {
     while((uint16_t)(start - pit_read_counter()) < PIT_FREQ / TARGET_FPS);
 }
 
-static uint8_t wait_ticks(uint32_t ticks) {
+static uint8_t wait_ticks(uint32_t ticks)  {
     static uint16_t timer = 0;
     static uint32_t acc   = 0;
 

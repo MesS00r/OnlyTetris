@@ -323,7 +323,7 @@ genBmpPalette path name field sep limits pads lineLen = do
     fileData <- liftIO $ B.readFile path
 
     either (\err -> error $ "Failed to read file: " ++ err)
-           (\case {(PalettedRGB8 _ p, _)                                    -> 
+           (\case {(PalettedRGB8 _ p, _)                                         -> 
            _bmpPalette (palettedAsImage p) name field sep limits pads lineLen; _ -> 
            error "This BMP does not contain an 8 bit palette"})
            (decodeBitmapWithPaletteAndMetadata fileData)
