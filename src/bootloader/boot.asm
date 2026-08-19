@@ -63,11 +63,11 @@ align 4 ; выравнивание на 4
 gdt_start:
     dd 0, 0
 gtb_code:
-    dw 0xFFFF, 0x0000
-    db 0x00, 0b10011010, 0b11001111, 0x00
+    dw 0xF9FF, 0x0000
+    db 0x00, 0b10011010, 0b11000000, 0x00
 gdt_data:
-    dw 0xFFFF, 0x0000
-    db 0x00, 0b10010010, 0b11001111, 0x00
+    dw 0xF9FF, 0x0000
+    db 0x00, 0b10010010, 0b11000000, 0x00
 gdt_end:
 
 gdt:
@@ -105,7 +105,7 @@ _32bit_start:
     mov fs, ax       ; загрузить ax в fs
     mov gs, ax       ; загрузить ax в gs
     mov ss, ax       ; загрузить ax в ss
-    mov esp, 0x90000 ; установить стек на 0x90000
+    mov esp, 0x8E00  ; установить стек на 0x8E00
 
     jmp KERNEL_MAIN ; переход в KERNEL_MAIN (0x7E00)
     ; запуск ядра ОС (В 1 конец)

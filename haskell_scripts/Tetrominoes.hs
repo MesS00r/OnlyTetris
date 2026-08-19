@@ -38,8 +38,28 @@ _rotateTetromino angle tetr = concat $
     where
         matrix = _myChunksOf 4 tetr
 
-_rotateTetromino2 :: [a] -> [[a]]
-_rotateTetromino2 tetrs = [_rotateTetromino i tetrs | i <- [0..3]]
+_alignTetromino :: (Eq a, Num a) => [[a]] -> [[a]]
+_alignTetromino tetr
+    | null pixels = replicate 4 (replicate 4 0)
+    | otherwise   = [ [ checkElem (x, y) | x <- [0..3] ] | y <- [0..3] ]
+    where
+        maxX = maximum (map fst pixels)
+        maxY = maximum (map snd pixels)
+
+        shifted = [ (x + 3 - maxX, y + 3 - maxY) | (x, y) <- pixels ]
+
+        checkElem coord | coord `elem` shifted = 1
+                        | otherwise            = 0
+
+        pixels :: [(Int, Int)]
+        pixels = [ (x, y) | (y, row) <- zip [0..3] tetr 
+                          , (x, val) <- zip [0..3] row
+                          , val == 1 ]
+
+_rotateTetromino2 :: (Eq a, Num a) => [a] -> [[a]]
+_rotateTetromino2 tetrs = map myAlign [ _rotateTetromino i tetrs | i <- [0..3] ]
+    where
+        myAlign = concat . _alignTetromino . _myChunksOf 4
 
 _bmp2Tetrominoes :: [Word8] -> [[Word16]]
 _bmp2Tetrominoes img = map ((map _bits2Bytes . myReverse) . _rotateTetromino2) (_myChunksOf 16 img)

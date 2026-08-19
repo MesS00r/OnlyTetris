@@ -26,10 +26,11 @@
             "type": "shell",
             "command": "qemu-system-i386",
             "args": [
+                "-d", "cpu,int,guest_errors,cpu_reset",
+                "-no-reboot",
+                "-D", "${workspaceFolder}/build/qemu.log",
                 "-drive",
-                "format=raw,file=${workspaceFolder}/os_image/onl_tetris.img",
-                "-d", "cpu,int,guest_errors",
-                "-D", "${workspaceFolder}/build/qemu.log"
+                "format=raw,file=${workspaceFolder}/os_image/onl_tetris.img"
             ],
             "group": {
                 "kind": "test",
