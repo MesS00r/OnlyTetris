@@ -1,12 +1,8 @@
 #ifndef SYS_LIB_H
 #define SYS_LIB_H
 
+#include <libs/macros_types.h>
 #include <stdint.h>
-
-#define PIT_COMMAND_PORT  0x43
-#define PIT_CHANNEL0_PORT 0x40
-#define PIT_FREQ          1193182
-#define TARGET_FPS        60
 
 static inline uint8_t inb(uint16_t port) {
     uint8_t result;

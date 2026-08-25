@@ -1,21 +1,15 @@
 #ifndef GAME_LIB_H
 #define GAME_LIB_H
 
+#include <libs/macros_types.h>
 #include <stdint.h>
-#include <libs/render.h>
-
-struct Tetromino {
-    uint16_t mask;
-    uint8_t hitbox;
-};
 
 static const uint8_t height_lut[] = {
     0, 1, 2, 2, 3, 3, 3, 3,
     4, 4, 4, 4, 4, 4, 4, 4
 };
 
-static uint8_t heights[MAP_WIDTH] = {0};
-static uint8_t dead_zone          = 0;
+static struct Heights heights[MAP_WIDTH] = {0};
 
 static uint8_t random_byte() {
     static uint16_t rng = 0xACE1;
@@ -30,23 +24,39 @@ static uint8_t random_byte() {
     return rng & 0xFF;
 }
 
-static uint16_t transpose(uint16_t mask) {
-    uint16_t trans = 0;
-    trans = (mask ^ (mask >> 3)) & 0x1111;
-    mask  = mask ^ trans ^ (trans << 3);
-    trans = (mask ^ (mask >> 6)) & 0x0303;
-    mask  = mask ^ trans ^ (trans << 6);
-    return mask;
-}
-
-static void add_height(struct Tetromino tetromino) {
+static void add_height(struct Tetromino tetromino, uint8_t x, uint8_t y) {
     uint8_t width  = TETROMINO_WIDTH(tetromino.hitbox);
-    uint16_t trans = transpose(tetromino.mask);
+    uint8_t bits4  = tetromino.mask & 0x0F;
+    uint16_t trans = 0;
+
+    #pragma GCC unroll 4
+    for (uint8_t i = 0; i < TETROMINO_DIMENSIONS; i++) {
+        trans |= (bits4 << (4 * i));
+    }
  
     for (uint8_t i = 0; i < width; i++) {
-        uint8_t line = TETROMINO_LINE(trans, i);
+        uint8_t line          = MASK_LINE(trans, i);
+        uint8_t gx            = x + i;
 
-        heights[i] += height_lut[line & 0x0F];
+        if (y <= 0) {
+            flags.is_dead = 1;
+            return;
+        }
+
+        uint8_t offset        = MAP_HEIGHT - y - 1;
+        uint32_t shifted_line = (uint32_t)line << offset;
+
+        if (heights[gx].mask & shifted_line) {
+            flags.is_dead = 1;
+            return;
+        }
+
+        heights[gx].mask |= shifted_line;
+
+        uint8_t new_height = MAP_HEIGHT - y;
+        if (new_height > heights[gx].num) {
+            heights[gx].num  = MAP_HEIGHT - y;
+        }
     }
 }
 
