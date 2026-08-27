@@ -24,19 +24,10 @@ static uint8_t random_byte() {
     return rng & 0xFF;
 }
 
-static void add_height(struct Tetromino tetromino, uint8_t x, uint8_t y) {
-    uint8_t width  = TETROMINO_WIDTH(tetromino.hitbox);
-    uint8_t bits4  = tetromino.mask & 0x0F;
-    uint16_t trans = 0;
-
-    #pragma GCC unroll 4
-    for (uint8_t i = 0; i < TETROMINO_DIMENSIONS; i++) {
-        trans |= (bits4 << (4 * i));
-    }
- 
-    for (uint8_t i = 0; i < width; i++) {
-        uint8_t line          = MASK_LINE(trans, i);
-        uint8_t gx            = x + i;
+static void add_height(uint16_t tetromino, uint8_t hitbox, uint8_t x, uint8_t y) { 
+    for (uint8_t i = 0; i < TETROMINO_WIDTH(hitbox); i++) {
+        uint8_t line = MASK_LINE(tetromino, i);
+        uint8_t gx   = x + i;
 
         if (y <= 0) {
             flags.is_dead = 1;
@@ -55,7 +46,7 @@ static void add_height(struct Tetromino tetromino, uint8_t x, uint8_t y) {
 
         uint8_t new_height = MAP_HEIGHT - y;
         if (new_height > heights[gx].num) {
-            heights[gx].num  = MAP_HEIGHT - y;
+            heights[gx].num = new_height;
         }
     }
 }

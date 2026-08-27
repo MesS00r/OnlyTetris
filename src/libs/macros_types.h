@@ -39,17 +39,12 @@
 #define TETROMINO_WIDTH(h)   ((h) >> 4)
 #define TETROMINO_HEIGHT(h)  ((h) & 0x0F)
 
-#define DEAD_HEIGHT(h)       (MAP_HEIGHT - ((h) & 0x0F))
+#define DEAD_HEIGHT(h)       (MAP_HEIGHT - (h))
 #define SCREEN_POS(x, y)     ((y) * SCREEN_WIDTH + (x))
 
 // ---------------------------------------------------------
 // | TYPES
 // ---------------------------------------------------------
-
-struct Tetromino {
-    uint16_t mask;
-    uint8_t hitbox;
-};
 
 struct Flags {
     unsigned char is_dead : 1;
