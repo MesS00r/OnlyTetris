@@ -33,14 +33,15 @@
 
 #define VGA ((uint8_t (*)[SCREEN_WIDTH])VGA_ADDR)
 
-#define MASK_LINE(m, i)      (((m) >> (((i) & 3) * 4)) & 0x0F)
-#define NUM_BIT(n, i)        (((n) >> (i)) & 1)
+#define MASK_LINE(m, i)       (((m) >> (((i) & 3) * 4)) & 0x0F)
+#define NUM_BIT(n, i)         (((n) >> (i)) & 1)
+// #define NUM_BIT_REVERSE(n, i) ((n) & (1 << ((i) & 3)))
 
-#define TETROMINO_WIDTH(h)   ((h) >> 4)
-#define TETROMINO_HEIGHT(h)  ((h) & 0x0F)
+#define TETROMINO_WIDTH(h)    ((h) >> 4)
+#define TETROMINO_HEIGHT(h)   ((h) & 0x0F)
 
-#define DEAD_HEIGHT(h)       (MAP_HEIGHT - (h))
-#define SCREEN_POS(x, y)     ((y) * SCREEN_WIDTH + (x))
+#define DEAD_HEIGHT(h)        (MAP_HEIGHT - (h))
+// #define SCREEN_POS(x, y)      ((y) * SCREEN_WIDTH + (x))
 
 // ---------------------------------------------------------
 // | TYPES
@@ -50,10 +51,5 @@ struct Flags {
     unsigned char is_dead : 1;
 };
 static struct Flags flags;
-
-struct Heights {
-    unsigned int mask : 24;
-    unsigned int num  : 8;
-};
 
 #endif // MACROS_TYPES_H
