@@ -1,10 +1,13 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include <libs/macros_types.h>
+#include <libs/macros.h>
 #include <stdint.h>
 
-static void tetromino_draw(uint8_t x, uint8_t y, const uint16_t tetromino) {
+static void tetromino_draw(
+    uint8_t x, uint8_t y,
+    const uint16_t tetromino
+) {
     uint16_t tetromino_x = x * TILE_DIMENSIONS;
     uint16_t tetromino_y = y * TILE_DIMENSIONS;
 
@@ -21,11 +24,12 @@ static void tetromino_draw(uint8_t x, uint8_t y, const uint16_t tetromino) {
     }
 }
 
-static void tetromino_clear(uint8_t x, uint8_t y) {
+static void tetromino_clear(uint8_t x, uint8_t y, uint8_t hitbox) {
     uint16_t tetromino_x = x * TILE_DIMENSIONS;
     uint16_t tetromino_y = y * TILE_DIMENSIONS;
+    uint8_t height       = TETROMINO_HEIGHT(hitbox);
 
-    for (uint8_t y1 = 0; y1 < TETROMINO_REAL_HEIGHT; y1++) {
+    for (uint8_t y1 = 0; y1 < height * TILE_DIMENSIONS; y1++) {
         uint64_t *out = (uint64_t *)&VGA[y1 + tetromino_y][tetromino_x];
 
         #pragma GCC unroll 4
@@ -36,9 +40,5 @@ static void tetromino_clear(uint8_t x, uint8_t y) {
         }
     }
 }
-
-// static inline void clear_screen(void) {
-//     __builtin_bzero(VGA, FULL_SCREEN);
-// }
 
 #endif // RENDER_H

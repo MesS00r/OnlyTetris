@@ -15,7 +15,22 @@
 #define PIT_COMMAND_PORT      0x43
 #define PIT_CHANNEL0_PORT     0x40
 #define PIT_FREQ              1193182
-#define TARGET_FPS            60
+// #define TARGET_FPS            60
+
+#define STATUS_PORT           0x64
+#define DATA_PORT             0x60
+#define STATUS_FULL           0x01
+
+#define KEY_SPACE_CODE        0x39
+#define KEY_W_CODE            0x11
+#define KEY_A_CODE            0x1E
+#define KEY_D_CODE            0x20
+
+#define KEY_SPACE             1
+#define KEY_W                 2
+#define KEY_A                 3
+#define KEY_D                 4
+#define KEY_ERR               0
 
 #define TILE_DIMENSIONS       8
 #define TILE_DIMS_OFFSET      3
@@ -31,25 +46,19 @@
 #define TETROMINO_DIMENSIONS  4
 #define TETROMINO_HALF_DIMS   2
 
+#define TRUE                  1
+#define FALSE                 0
+
 #define VGA ((uint8_t (*)[SCREEN_WIDTH])VGA_ADDR)
 
 #define MASK_LINE(m, i)       (((m) >> (((i) & 3) * 4)) & 0x0F)
 #define NUM_BIT(n, i)         (((n) >> (i)) & 1)
-// #define NUM_BIT_REVERSE(n, i) ((n) & (1 << ((i) & 3)))
+#define NUM_BIT_REVERSE(n, i) ((n) & (1 << ((i) & 3)))
 
 #define TETROMINO_WIDTH(h)    ((h) >> 4)
 #define TETROMINO_HEIGHT(h)   ((h) & 0x0F)
 
-#define DEAD_HEIGHT(h)        (MAP_HEIGHT - (h))
+// #define DEAD_HEIGHT(h)        (MAP_HEIGHT - (h))
 // #define SCREEN_POS(x, y)      ((y) * SCREEN_WIDTH + (x))
-
-// ---------------------------------------------------------
-// | TYPES
-// ---------------------------------------------------------
-
-struct Flags {
-    unsigned char is_dead : 1;
-};
-static struct Flags flags;
 
 #endif // MACROS_TYPES_H
