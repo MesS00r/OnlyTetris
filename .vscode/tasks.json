@@ -30,7 +30,7 @@
                 "-no-reboot",
                 "-D", "${workspaceFolder}/build/qemu.log",
                 "-drive",
-                "format=raw,file=${workspaceFolder}/os_image/onl_tetris.img"
+                "format=raw,file=${workspaceFolder}/os_image/onl_tetris_4_qemu.img"
             ],
             "group": {
                 "kind": "test",

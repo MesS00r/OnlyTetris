@@ -31,8 +31,8 @@ add_executable(onl_tetris ${ASM_SOURCES} ${C_SOURCES})
 target_include_directories(onl_tetris PRIVATE src)
 
 set(OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/os_image")
-set(BIN_FILE   "${OUTPUT_DIR}/onl_tetris.bin")
-set(IMG_FILE   "${OUTPUT_DIR}/onl_tetris.img")
+set(BIN_FILE   "${OUTPUT_DIR}/onl_tetris.img")
+set(IMG_FILE   "${OUTPUT_DIR}/onl_tetris_4_qemu.img")
 
 add_custom_command(
     TARGET onl_tetris

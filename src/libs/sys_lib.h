@@ -22,11 +22,11 @@ static uint16_t pit_read_counter(void) {
     return (high << 8) | low;
 }
 
-// static void wait_frame(void) {
-//     uint16_t start = pit_read_counter();
+static void wait_frame(void) {
+    uint16_t start = pit_read_counter();
 
-//     while((uint16_t)(start - pit_read_counter()) < PIT_FREQ / TARGET_FPS);
-// }
+    while((uint16_t)(start - pit_read_counter()) < PIT_FREQ / TARGET_FPS);
+}
 
 static uint8_t wait_ticks(uint32_t ticks)  {
     static uint16_t timer = 0;

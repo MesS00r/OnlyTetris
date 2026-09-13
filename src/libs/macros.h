@@ -3,10 +3,6 @@
 
 #include <stdint.h>
 
-// ---------------------------------------------------------
-// | MACROS
-// ---------------------------------------------------------
-
 #define VGA_ADDR              0xA0000
 #define SCREEN_HEIGHT         200
 #define SCREEN_WIDTH          320
@@ -15,7 +11,7 @@
 #define PIT_COMMAND_PORT      0x43
 #define PIT_CHANNEL0_PORT     0x40
 #define PIT_FREQ              1193182
-// #define TARGET_FPS            60
+#define TARGET_FPS            60
 
 #define STATUS_PORT           0x64
 #define DATA_PORT             0x60
@@ -51,14 +47,11 @@
 
 #define VGA ((uint8_t (*)[SCREEN_WIDTH])VGA_ADDR)
 
-#define MASK_LINE(m, i)       (((m) >> (((i) & 3) * 4)) & 0x0F)
+#define MASK_LINE(m, i)       (((m) >> ((i) * 4)) & 0x0F)
 #define NUM_BIT(n, i)         (((n) >> (i)) & 1)
-#define NUM_BIT_REVERSE(n, i) ((n) & (1 << ((i) & 3)))
+#define NUM_BIT_REVERSE(n, i) ((n) & (1 << (i)))
 
 #define TETROMINO_WIDTH(h)    ((h) >> 4)
 #define TETROMINO_HEIGHT(h)   ((h) & 0x0F)
-
-// #define DEAD_HEIGHT(h)        (MAP_HEIGHT - (h))
-// #define SCREEN_POS(x, y)      ((y) * SCREEN_WIDTH + (x))
 
 #endif // MACROS_TYPES_H

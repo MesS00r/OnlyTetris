@@ -1,11 +1,10 @@
--- {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ParallelListComp #-}
 
 module Main (main) where
 
 import qualified Paths_HCompile as CabalPaths
 import System.FilePath          (takeDirectory, (</>))
-import Data.Bits                (shiftL, (.|.), Bits (testBit))
+import Data.Bits                (shiftL, (.|.))
 import Data.Word                (Word8, Word16)
 import Numeric                  (showHex)
 import Data.Char                (toUpper)
@@ -83,32 +82,6 @@ _gen2DTable4C spaces fields
                    ("{ ", " }")
                    4
 
-_getTetrominoSize :: Word16 -> (Int, Int)
-_getTetrominoSize 0    = (0, 0)
-_getTetrominoSize tetr = (width, height)
-    where
-        coords = [ (i `mod` 4, i `div` 4)
-                 | i <- [0..15]
-                 , testBit tetr i
-                 ]
-
-        xs     = map fst coords
-        ys     = map snd coords
-
-        width  = maximum xs - minimum xs + 1
-        height = maximum ys - minimum ys + 1
-
-_combineBytes :: Int -> Int -> Int
-_combineBytes high low = (high `shiftL` 4) .|. low
-
-_genTetrominoHitboxes :: [Word16] -> [Int]
-_genTetrominoHitboxes tetrs
-    | null tetrs = []
-    | otherwise  = sizeLists
-    where
-        tetrominoSizes = map _getTetrominoSize tetrs
-        sizeLists      = map (\(w, h) -> _combineBytes w h) tetrominoSizes
-
 main :: IO ()
 main =
     _getRootDir >>= \rootDir ->
@@ -140,15 +113,6 @@ main =
                   )
 
         _gen2DTable4C 4 fields
-
-        send2File "\n};\n\n"
-
-        send2File ("static const uint8_t tetromino_hitboxes[" ++
-                  tetrNum ++ "]["                             ++
-                  turnNum ++ "] = {\n\t"
-                  )
-
-        _gen2DTable4C 2 $ map _genTetrominoHitboxes fields
 
         send2File "\n};\n"
 
